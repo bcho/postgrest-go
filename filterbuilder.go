@@ -1,6 +1,7 @@
 package postgrest
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -21,19 +22,37 @@ type FilterBuilder struct {
 // ExecuteString runs the PostgREST query, returning the result as a JSON
 // string.
 func (f *FilterBuilder) ExecuteString() (string, countType, error) {
-	return executeString(f.client, f.method, f.body, []string{f.tableName}, f.headers, f.params)
+	return f.ExecuteStringContext(context.Background())
+}
+
+// ExecuteStringContext runs the PostgREST query, returning the result as a JSON
+// string.
+func (f *FilterBuilder) ExecuteStringContext(ctx context.Context) (string, countType, error) {
+	return executeString(ctx, f.client, f.method, f.body, []string{f.tableName}, f.headers, f.params)
 }
 
 // Execute runs the PostgREST query, returning the result as a byte slice.
 func (f *FilterBuilder) Execute() ([]byte, countType, error) {
-	return execute(f.client, f.method, f.body, []string{f.tableName}, f.headers, f.params)
+	return f.ExecuteContext(context.Background())
+}
+
+// ExecuteContext runs the PostgREST query, returning the result as a byte slice.
+func (f *FilterBuilder) ExecuteContext(ctx context.Context) ([]byte, countType, error) {
+	return execute(ctx, f.client, f.method, f.body, []string{f.tableName}, f.headers, f.params)
 }
 
 // ExecuteTo runs the PostgREST query, encoding the result to the supplied
 // interface. Note that the argument for the to parameter should always be a
 // reference to a slice.
 func (f *FilterBuilder) ExecuteTo(to interface{}) (countType, error) {
-	return executeTo(f.client, f.method, f.body, to, []string{f.tableName}, f.headers, f.params)
+	return f.ExecuteToContext(context.Background(), to)
+}
+
+// ExecuteToContext runs the PostgREST query, encoding the result to the supplied
+// interface. Note that the argument for the to parameter should always be a
+// reference to a slice.
+func (f *FilterBuilder) ExecuteToContext(ctx context.Context, to interface{}) (countType, error) {
+	return executeTo(ctx, f.client, f.method, f.body, to, []string{f.tableName}, f.headers, f.params)
 }
 
 var filterOperators = []string{"eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "is", "in", "cs", "cd", "sl", "sr", "nxl", "nxr", "adj", "ov", "fts", "plfts", "phfts", "wfts"}

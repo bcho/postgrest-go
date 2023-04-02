@@ -1,6 +1,7 @@
 package postgrest
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -19,19 +20,37 @@ type QueryBuilder struct {
 // ExecuteString runs the Postgrest query, returning the result as a JSON
 // string.
 func (q *QueryBuilder) ExecuteString() (string, countType, error) {
-	return executeString(q.client, q.method, q.body, []string{q.tableName}, q.headers, q.params)
+	return q.ExecuteStringContext(context.Background())
+}
+
+// ExecuteStringContext runs the Postgrest query, returning the result as a JSON
+// string.
+func (q *QueryBuilder) ExecuteStringContext(ctx context.Context) (string, countType, error) {
+	return executeString(ctx, q.client, q.method, q.body, []string{q.tableName}, q.headers, q.params)
 }
 
 // Execute runs the Postgrest query, returning the result as a byte slice.
 func (q *QueryBuilder) Execute() ([]byte, countType, error) {
-	return execute(q.client, q.method, q.body, []string{q.tableName}, q.headers, q.params)
+	return q.ExecuteContext(context.Background())
+}
+
+// ExecuteContext runs the Postgrest query, returning the result as a byte slice.
+func (q *QueryBuilder) ExecuteContext(ctx context.Context) ([]byte, countType, error) {
+	return execute(ctx, q.client, q.method, q.body, []string{q.tableName}, q.headers, q.params)
 }
 
 // ExecuteTo runs the Postgrest query, encoding the result to the supplied
 // interface. Note that the argument for the to parameter should always be a
 // reference to a slice.
 func (q *QueryBuilder) ExecuteTo(to interface{}) (countType, error) {
-	return executeTo(q.client, q.method, q.body, to, []string{q.tableName}, q.headers, q.params)
+	return q.ExecuteToContext(context.Background(), to)
+}
+
+// ExecuteToContext runs the Postgrest query, encoding the result to the supplied
+// interface. Note that the argument for the to parameter should always be a
+// reference to a slice.
+func (q *QueryBuilder) ExecuteToContext(ctx context.Context, to interface{}) (countType, error) {
+	return executeTo(ctx, q.client, q.method, q.body, to, []string{q.tableName}, q.headers, q.params)
 }
 
 // Select performs vertical filtering.
