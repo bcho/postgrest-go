@@ -82,6 +82,22 @@ func (f *FilterBuilder) Match(userQuery map[string]string) *FilterBuilder {
 	return f
 }
 
+func (f *FilterBuilder) WithHeader(k string, v string) *FilterBuilder {
+	return f.WithHeaders(k, v)
+}
+
+func (f *FilterBuilder) WithHeaders(kvs ...string) *FilterBuilder {
+	if len(kvs)%2 != 0 {
+		panic("WithHeaders requires an even number of arguments")
+	}
+
+	for i := 0; i < len(kvs); i += 2 {
+		f.headers[kvs[i]] = kvs[i+1]
+	}
+
+	return f
+}
+
 func (f *FilterBuilder) Eq(column, value string) *FilterBuilder {
 	f.params[column] = "eq." + value
 	return f
